@@ -24,14 +24,14 @@ public class StockController {
 
     @GetMapping("/stock")
     public ResponseEntity<List<StockValue>> getAllStockValues() {
-        /*
+
         List<StockValue> stockValues = stockValueRepository.findAll();
 
-        if (stockValues.isEmpty()) {*/
+        if (stockValues.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        /*}
+        }
 
-        return new ResponseEntity<>(stockValues, HttpStatus.OK);*/
+        return new ResponseEntity<>(stockValues, HttpStatus.OK);
     }
 
     @PostMapping("/stock")

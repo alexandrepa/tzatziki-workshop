@@ -1,5 +1,6 @@
 package org.tzatziki.steps;
 
+import com.decathlon.tzatziki.steps.KafkaSteps;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -12,6 +13,7 @@ import org.tzatziki.StockApplication;
 
 import java.util.Map;
 
+import static com.decathlon.tzatziki.utils.MockFaster.url;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @CucumberContextConfiguration
@@ -25,10 +27,15 @@ public class TestSteps {
 
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             postgres.start();
+            KafkaSteps.start();
             TestPropertyValues.of(
                     "spring.datasource.url=" + postgres.getJdbcUrl(),
                     "spring.datasource.username=" + postgres.getUsername(),
-                    "spring.datasource.password=" + postgres.getPassword()
+                    "spring.datasource.password=" + postgres.getPassword(),
+                    "stock.referential.url=" + url() + "/mock/referential", //stock.referential.url is the property used by rest client in the app to reach the referential API
+                    "spring.kafka.bootstrap-servers=" + KafkaSteps.bootstrapServers(),
+                    "spring.kafka.properties.schema.registry.url=" + KafkaSteps.schemaRegistryUrl(),
+                    "spring.kafka.consumer.auto-offset-reset=earliest"
             ).applyTo(configurableApplicationContext.getEnvironment());
         }
     }
