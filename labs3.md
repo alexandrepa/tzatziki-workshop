@@ -79,7 +79,7 @@ Background:
 
 3. Create the scenario and <span style="color:Yellow">**populate** the stock_value table in the background.</span> Then we will consume a message in a kafka topic like this : 
 ```gherkin
-When this stockValue is consumed from the json-users-input topic:
+When this stockValue is consumed from the stock topic:
 """yml
       id: 1
       name: bob

@@ -1,5 +1,6 @@
 package org.tzatziki;
 
+import com.decathlon.tzatziki.steps.KafkaSteps;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
