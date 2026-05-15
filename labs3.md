@@ -2,88 +2,85 @@
 
 ## Pre-requisites
 
-In order to test kafka we need to start an embedded kafka server. Tzatziki provides a module that can start an embedded
-kafka server for you and cucumber steps to interact with it.
-Add the following dependency to your `pom.xml` file:
+In order to test Kafka, we need to start an embedded Kafka server. Tzatziki provides the `tzatziki-spring-kafka` module that handles this for you.
 
-```xml
+Instead of manually configuring the steps, we will use the **Tzatziki Cucumber Skill** — an AI-powered skill that knows every legal Tzatziki step pattern and can generate `.feature` files from a functional specification.
 
-<dependency>
-   <groupId>com.decathlon.tzatziki</groupId>
-   <artifactId>tzatziki-spring-kafka</artifactId>
-   <version>1.5.3</version>
-   <scope>test</scope>
-</dependency>
+### Install the Tzatziki Skill
+
+Install the skill in your agent environment (GitHub Copilot coding agent, Copilot CLI, etc.) with:
+
+```bash
+npx skills add https://github.com/Decathlon/tzatziki
 ```
 
-In the TestSteps Initialization, you need to add the following code to start the embedded kafka server:
+This gives your AI agent the `add-cucumber-tests` skill which can:
+- Generate `.feature` files from a functional description
+- Use the correct step definitions for HTTP, JPA, Kafka, MongoDB, OpenSearch, Logback, or MCP modules
+- Validate that all generated steps are real Tzatziki steps (no undefined-step errors)
 
-```java
-KafkaSteps.start();
-```
-
-You can do it right after the postgres start.
-
-You also need to bind the embedded kafka server to you spring app adding this to the TestPropertyValues :
-
-```java
-"spring.kafka.bootstrap-servers="+KafkaSteps.bootstrapServers(),
-"spring.kafka.properties.schema.registry.url="+KafkaSteps.schemaRegistryUrl(),
-"spring.kafka.consumer.auto-offset-reset=earliest"
-```
+### Kafka Producer Configuration
 
 We already configured a KafkaProducer in KafkaProducerConfig for you
-that will be used by the steps to send messages to Kafka topics. 
+that will be used by the steps to send messages to Kafka topics.
 
 **You just have to uncomment it the class file (KafkaProducerConfig.java).**
 
-That's it, you can now start writing your tests. 
+That's it, you can now start writing your tests using the skill!
 
 ## 3. As a Product Manager, I want to consume a Kafka message and modify our datas in dB
 
-> I want to listen `stock` kafka topic and update information in dB from the message
+### Use the Tzatziki Skill to generate your test
+
+Instead of writing the `.feature` file manually, provide the following **functional specification** to the skill and let it generate the Cucumber test for you:
+
+> **Spec to provide to the skill:**
 >
-> Modify in dB quantity from the given id given by the message
+> I want to listen to the `stock` Kafka topic and update information in the database from the message.
 >
- ```json
-{
-"id": 1,
-"quantity": 100
-}
-```
+> When a message is consumed from the `stock` topic, it should modify the `quantity` column in the `stock_value` table for the row matching the given `id`.
+>
+> The message payload is an Avro record with the following schema:
+> ```yaml
+> type: record
+> name: stockValue
+> fields:
+>   - name: id
+>     type: long
+>   - name: quantity
+>     type: int
+> ```
+>
+> Example message:
+> ```json
+> {
+>   "id": 1,
+>   "quantity": 100
+> }
+> ```
+>
+> The test should:
+> 1. Pre-populate the `stock_value` table with initial data (id=1, quantity=0 and id=2, quantity=10)
+> 2. Consume the Avro message from the `stock` topic
+> 3. Assert that the `stock_value` table has been updated (id=1 should now have quantity=100, id=2 unchanged)
 
+### What the skill will do
 
-### Create a Test which will test the GET endpoint that displays datas from the database
-1. For this test we will see 2 notions : the background part and how to consume a new kafka message
-   1. At the beginning of the file and before all your scenarios you can add a background part that will be played before each scenario in your file (very usefull when you have the same starter part)
-```gherkin
-Background: 
-  * that the table_name table will contain:
-    | column1 | column2 | column3 |
-    | daddy   | 666     | true    |
-    | mummy   | 987654  | false   |
-```
-2. In this background, we can define our avro schema:
-```gherkin
-* this avro schema:
-"""yml
-      type: record
-      name: stockValue
-      fields:
-        - name: id
-          type: long
-        - name: quantity
-          type: int
-      """
-```
+The skill will:
+1. **Discover your project** — detect `tzatziki-spring-kafka` in your `pom.xml` and read the relevant step references
+2. **Propose a plan** — show you the scenarios it will create and ask for confirmation
+3. **Generate the `.feature` file** — using only valid Tzatziki step patterns (Background with avro schema, `Given` to populate the table, `When` to consume the Kafka message, `Then` to assert DB state)
+4. **Run and validate** — execute the tests to ensure zero undefined-step errors
 
-3. Create the scenario and <span style="color:Yellow">**populate** the stock_value table in the background.</span> Then we will consume a message in a kafka topic like this : 
-```gherkin
-When this stockValue is consumed from the stock topic:
-"""yml
-      id: 1
-      name: bob
-"""
-```
+### What to look for in the generated test
 
-4. Check in the dB that values has been changed ! 
+The skill should produce something that uses these key concepts:
+- A `Background` section to define the Avro schema (shared across all scenarios in the file)
+- A `Given` step to populate the `stock_value` table with initial data
+- A `When` step to consume an Avro message from the `stock` topic
+- A `Then` step to assert the database state after consumption
+
+### 💡 Tips
+- You can ask the skill to add edge cases (e.g., "what if the id doesn't exist in the table?")
+- The skill will never invent step patterns — every step it writes comes from real Tzatziki step definitions
+- If the generated test has assertion failures (e.g., `expected 100 but got 0`), that's normal — it means you need to implement the Kafka consumer logic!
