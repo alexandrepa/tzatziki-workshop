@@ -28,8 +28,8 @@ Feature: to interact with the stock values 2
 
     And getting on "/mock/referential/description/(\d+)" will return:
     """yml
-    id: {{_request.pathParameterList.0.values.0.value}}
-    description: "description for article {{_request.pathParameterList.0.values.0.value}}"
+    id: \{{request.pathSegments.3}}
+    description: "description for article \{{request.pathSegments.3}}"
     """
 
     When we call "/stock-with-description"

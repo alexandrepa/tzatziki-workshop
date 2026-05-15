@@ -13,7 +13,7 @@ import org.tzatziki.StockApplication;
 
 import java.util.Map;
 
-import static com.decathlon.tzatziki.utils.MockFaster.url;
+import static com.decathlon.tzatziki.utils.HttpUtils.url;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @CucumberContextConfiguration
