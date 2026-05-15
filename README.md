@@ -2,7 +2,7 @@
 
 ## Pre-requisites
 
-### Check JAVA version is higher or equals to  17.0.0
+### Check JAVA version is higher or equals to 21
 ```shell
    java --version
 ```
@@ -36,8 +36,8 @@ The workshop is divided into 3 parts:
   check that the data is correctly returned by the API.
 - The second part will show you how to mock an external API and check that the data returned by this API is correctly
   integrated into your application.
-- The third part will show you how to test a Kafka consumer by sending stock movements to a Kafka topic and checking
-  that the data is correctly integrated into your database.
+- The third part will show you how to use the Tzatziki `add-cucumber-tests` skill to generate a Kafka consumer test
+  from a functional specification, then check that the data is correctly integrated into your database.
 
 ## Architecture of the application
 
@@ -86,16 +86,17 @@ To add Tzatziki to your project, you need to add the following dependencies to y
 - `tzatziki-spring-jpa` if you want to test a Spring JPA repository
 - `tzatziki-spring-kafka` if you want to test a Kafka consumer or producer
 
-Dependencies for the first part of the workshop are already added to the pom.xml file (tzatziki-http and
-tzatziki-spring-jpa).
+All dependencies for the workshop are already added to the pom.xml file (tzatziki-http, tzatziki-spring-jpa, and
+tzatziki-spring-kafka).
 
 You can just do a `mvn clean install` to install the dependencies.
 
 ### Configuration
 
 To run the tests, we need to declare a Cucumber runner class.
-You can already find one (StockTestRunner) in the test folder. See the extraGlue parameter in the @CucumberOptions
-annotation, it is used to declare the package where the step definitions provided by Tzatziki are located.
+You can already find one (StockTestRunner) in the test folder. It uses the JUnit 5 Platform Suite API (`@Suite`,
+`@IncludeEngines("cucumber")`) with `@ConfigurationParameter(key = GLUE_PROPERTY_NAME, ...)` to declare the packages
+where the step definitions provided by Tzatziki are located.
 
 As we are going to test database interactions, we need to start a database instance before running the tests and plug it
 to the application.

@@ -22,15 +22,14 @@ Given that the stock_value table will contain:
    | 1            | 666      |
 ```
 
-2. In order to bind the tzatziki mock server to your spring app, you need to add something like the following code in
-   the <span style="color:Yellow">**TestSteps.java**</span> Initialization to the TestPropertyValues:
+2. The tzatziki mock server is already bound to your spring app. In **TestSteps.java** you can see:
 
 ```java
-"stock.referential.url="+url() +"/mock/referential" //stock.referential.url is the property used by rest client in the app to reach the referential API
+"stock.referential.url="+url() +"/mock/referential"
 ```
 
-url() is a method provided by the module tzatziki-http that return the url of the mock server
-With this configuration, all mocked url in your test with the path "/mock/referential" will be reached by the
+`url()` is a method provided by the module tzatziki-http that returns the url of the mock server.
+With this configuration, all mocked urls in your test with the path "/mock/referential" will be reached by the
 Referential API client in the spring app.
 
 3. Then we have to mock the Referential API "/mock/referential/description/1" using a sentence like
